@@ -2,7 +2,6 @@ const express = require('express');
 const router = new express.Router();
 const db = require('../db');
 const ExpressError = require('../expressError');
-const { route } = require('../app');
 
 router.get('/', async (req, res, next) => {
     try {
@@ -37,6 +36,7 @@ router.get('/:id', async (req, res, next) => {
             SELECT * from invoices
                 WHERE id=$1
         `, [id]);
+
         return res.json({ "invoices": result.rows[0] });
     } catch (e) {
         return next(e);
@@ -53,6 +53,8 @@ router.put('/:id', async (req, res, next) => {
             WHERE id=$2
             RETURNING *
         `, [amt, id]);
+
+        if (!result.rowCount) throw new ExpressError("Not Found", 404);
 
         return res.json({ "invoice": result.rows[0] });
     } catch (e) {
